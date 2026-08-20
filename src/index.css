@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mv-navy: #0d1130;
+  --color-mv-navy-light: #1c2354;
+  --color-mv-navy-lighter: #2a3270;
+  --color-mv-yellow: #ffc20e;
+  --color-mv-blue: #29abe2;
+  --color-mv-red: #e62e2d;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Rajdhani", "Outfit", ui-sans-serif, sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: #eef0f8;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(41, 171, 226, 0.07), transparent 40%),
+    radial-gradient(circle at 100% 0%, rgba(255, 194, 14, 0.10), transparent 40%);
+  background-attachment: fixed;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c7cbe0; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #a7addd; }
+
+.font-display { font-family: var(--font-display); }
+
+.brand-mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(13, 17, 48, 0.04), 0 8px 24px -12px rgba(13, 17, 48, 0.12);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1c2354, #0d1130);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 6px 16px -6px rgba(13, 17, 48, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 20px -6px rgba(13, 17, 48, 0.5); }
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.dotted-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+@media print {
+  body * { visibility: hidden; }
+  #ticket-print, #ticket-print * { visibility: visible; }
+  #ticket-print {
+    position: absolute; top: 0; left: 0; width: 100%;
+    box-shadow: none !important; border-radius: 0 !important;
+  }
+  .no-print { display: none !important; }
+}
