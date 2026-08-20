@@ -31,7 +31,11 @@ Configuración) sobre cada pedido; todos los cálculos de utilidad la descuentan
      para agregar comisión, folio, categorías y configuración sin perder tus datos.
 4. Ve a **Authentication → Sign In / Up → Email** y **desactiva** "Confirm email"
    (para que tus empleados no necesiten confirmar correo). Guarda.
-5. Ve a **Project Settings → API** (o "API Keys") y copia:
+5. En esa misma pantalla, **desactiva "Allow new users to sign up"** (o "Enable email
+   signups"). Esto es importante: sin esto, cualquiera que encuentre la URL de tu sitio
+   podría crearse una cuenta. Con el registro cerrado, solo tú das de alta gente
+   (paso 6 de "Uso diario", más abajo).
+6. Ve a **Project Settings → API** (o "API Keys") y copia:
    - **Project URL** (ej. `https://abcd1234.supabase.co`)
    - **anon / public key** (empieza con `eyJ...`)
 
@@ -46,9 +50,12 @@ npm install
 npm run dev
 ```
 
-Abre <http://localhost:5173>, pulsa **Regístrate** y crea tu cuenta.
-**El primer usuario registrado queda como administrador automáticamente.**
-Los siguientes entran como "solo lectura" y tú les cambias el rol en la sección Usuarios.
+Abre <http://localhost:5173> e inicia sesión. Para crear tu primera cuenta (antes de
+desactivar el registro, o siempre desde el panel de Supabase — ver "Uso diario" abajo):
+en Supabase ve a **Authentication → Users → Add user → Create new user**, pon tu correo
+y contraseña, marca "Auto Confirm User". **El primer usuario creado queda como
+administrador automáticamente.** Los siguientes entran como "solo lectura" y tú les
+subes el rol desde la sección Usuarios del sitio.
 
 ## 3. Publicar gratis en Netlify (acceso desde cualquier lugar)
 
@@ -76,7 +83,11 @@ de entorno crea antes un archivo `.env` local antes de hacer el build).
 - **Insumos / Gastos:** registra compras y gastos; se restan en la utilidad neta del reporte.
 - **Reportes:** hoy / 7 días / mes / rango libre. Utilidad por canal y por artículo.
   Botón para exportar CSV (se abre en Excel).
-- **Usuarios:** cada quien se registra en la pantalla de login; el admin les asigna rol.
+- **Usuarios:** el registro público está cerrado (por seguridad). Para dar de alta a
+  alguien: Supabase → **Authentication → Users → Add user → Create new user**, ponle
+  correo y una contraseña temporal, marca "Auto Confirm User". Esa persona entra
+  automáticamente como "solo lectura"; tú le subes el rol a admin desde la sección
+  Usuarios del sitio si necesita capturar pedidos.
 - **Configuración** (solo admin): ajustar el % de comisión de cada plataforma, agregar
   categorías de artículos y los datos del negocio que aparecen en el ticket.
 - **Ticket:** cada pedido tiene folio consecutivo; da click en un pedido de la lista

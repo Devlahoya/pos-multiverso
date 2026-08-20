@@ -75,6 +75,7 @@ export default function Layout({ profile, session }) {
         {brand}
         {nav}
         <UserBox profile={profile} session={session} />
+        <div className="text-center text-white/20 text-[10px] py-2">Desarrollado por Devlahoya con ❤️ 2026</div>
       </aside>
 
       {/* Barra móvil */}

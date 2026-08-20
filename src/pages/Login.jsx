@@ -2,27 +2,16 @@ import { useState } from 'react'
 import { supabase } from '../supabase'
 
 export default function Login() {
-  const [mode, setMode] = useState('login') // login | signup
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
   const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
     setLoading(true); setMsg(null)
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setMsg({ type: 'error', text: 'Correo o contraseña incorrectos.' })
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { name } },
-      })
-      if (error) setMsg({ type: 'error', text: error.message })
-      else setMsg({ type: 'ok', text: 'Cuenta creada. Si no entra automáticamente, revisa tu correo para confirmar y luego inicia sesión.' })
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) setMsg({ type: 'error', text: 'Correo o contraseña incorrectos.' })
     setLoading(false)
   }
 
@@ -42,38 +31,28 @@ export default function Login() {
           </div>
 
           <form onSubmit={submit} className="px-8 pb-8 space-y-4">
-            {mode === 'signup' && (
-              <input value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-mv-blue focus:border-transparent transition" />
-            )}
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="Correo"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-mv-blue focus:border-transparent transition" />
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} placeholder="Contraseña"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-mv-blue focus:border-transparent transition" />
 
             {msg && (
-              <div className={`text-sm rounded-xl px-3 py-2.5 ${msg.type === 'error' ? 'bg-red-50 text-mv-red' : 'bg-green-50 text-green-700'}`}>
+              <div className="text-sm rounded-xl px-3 py-2.5 bg-red-50 text-mv-red">
                 {msg.text}
               </div>
             )}
 
             <button disabled={loading} className="btn-primary w-full py-3.5 rounded-xl">
-              {loading ? '…' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
+              {loading ? '…' : 'Entrar'}
             </button>
 
-            <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMsg(null) }}
-              className="w-full text-sm text-mv-blue font-semibold hover:underline">
-              {mode === 'login' ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-            </button>
-
-            {mode === 'signup' && (
-              <p className="text-xs text-gray-400 text-center">
-                Las cuentas nuevas entran como <b>solo lectura</b>. Un administrador debe darte permisos.
-              </p>
-            )}
+            <p className="text-xs text-gray-400 text-center">
+              ¿No tienes cuenta? Pídele al administrador que te dé de alta.
+            </p>
           </form>
         </div>
         <p className="text-center text-white/30 text-xs mt-6 tracking-wide">Multiverso — Boneless and Food</p>
+        <p className="text-center text-white/20 text-[11px] mt-1">Desarrollado por Devlahoya con ❤️ 2026</p>
       </div>
     </div>
   )
