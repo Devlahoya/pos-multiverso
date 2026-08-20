@@ -17,6 +17,7 @@ create table public.articles (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   category text,
+  image_url text,
   cost numeric not null default 0,          -- costo de producción
   price_sitio numeric,                       -- null = no se vende en ese canal
   price_uber numeric,
@@ -167,3 +168,18 @@ create policy "admin write app_settings" on public.app_settings for update to au
 -- Solo admin puede cambiar roles de otros
 create policy "admin update profiles" on public.profiles for update to authenticated
   using (public.my_role() = 'admin') with check (public.my_role() = 'admin');
+
+-- ---------- Fotos de artículos (Supabase Storage) ----------
+
+insert into storage.buckets (id, name, public)
+values ('articles', 'articles', true)
+on conflict (id) do nothing;
+
+create policy "public read article images" on storage.objects
+  for select to public using (bucket_id = 'articles');
+create policy "admin upload article images" on storage.objects
+  for insert to authenticated with check (bucket_id = 'articles' and public.my_role() = 'admin');
+create policy "admin update article images" on storage.objects
+  for update to authenticated using (bucket_id = 'articles' and public.my_role() = 'admin');
+create policy "admin delete article images" on storage.objects
+  for delete to authenticated using (bucket_id = 'articles' and public.my_role() = 'admin');

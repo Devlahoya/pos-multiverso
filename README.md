@@ -26,9 +26,10 @@ Configuración) sobre cada pedido; todos los cálculos de utilidad la descuentan
    → **New query** → pega TODO el contenido de [`supabase/schema.sql`](supabase/schema.sql)
    → botón **Run**. Debe decir "Success".
    - Si ya tenías el proyecto creado de antes, en vez de correr `schema.sql` de nuevo
-     corre [`supabase/migration_commission.sql`](supabase/migration_commission.sql) y
-     luego [`supabase/migration_v2.sql`](supabase/migration_v2.sql) (en ese orden),
-     para agregar comisión, folio, categorías y configuración sin perder tus datos.
+     corre en este orden: [`migration_commission.sql`](supabase/migration_commission.sql) →
+     [`migration_v2.sql`](supabase/migration_v2.sql) →
+     [`migration_v3.sql`](supabase/migration_v3.sql), para agregar comisión, folio,
+     categorías, configuración y fotos de artículos sin perder tus datos.
 4. Ve a **Authentication → Sign In / Up → Email** y **desactiva** "Confirm email"
    (para que tus empleados no necesiten confirmar correo). Guarda.
 5. En esa misma pantalla, **desactiva "Allow new users to sign up"** (o "Enable email
@@ -78,8 +79,9 @@ de entorno crea antes un archivo `.env` local antes de hacer el build).
 
 - **Pedidos:** eliges canal (Sitio / Uber / Didi / Rappi), tocas los artículos, registras.
   El sistema guarda venta y costo de producción del momento.
-- **Artículos:** costo de producción + precio por canal. Deja vacío el precio si no se
-  vende en ese canal. La utilidad por canal se calcula sola.
+- **Artículos:** foto (opcional, se sube directo desde el formulario), costo de
+  producción + precio por canal. Deja vacío el precio si no se vende en ese canal.
+  La utilidad por canal se calcula sola.
 - **Insumos / Gastos:** registra compras y gastos; se restan en la utilidad neta del reporte.
 - **Reportes:** hoy / 7 días / mes / rango libre. Utilidad por canal y por artículo.
   Botón para exportar CSV (se abre en Excel).

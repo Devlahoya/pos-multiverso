@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 import { money, isoDay, combineDateWithNow } from '../lib/format'
-import { CHANNELS, channelLabel, channelColor, channelCommission } from '../lib/channels'
+import { CHANNELS, channelLabel, channelCommission } from '../lib/channels'
 import { useSettings } from '../context/SettingsContext'
+import ChannelTabs from './ChannelTabs'
+import ArticleImage from './ArticleImage'
 
 let tempKey = 0
 
@@ -16,6 +18,7 @@ export default function EditOrderModal({ order, articles, onClose, onSaved }) {
     key: `orig-${it.id}`,
     article_id: it.article_id,
     name: it.article_name,
+    image_url: articles.find(a => a.id === it.article_id)?.image_url ?? null,
     qty: it.qty,
     unit_price: Number(it.unit_price),
     unit_cost: Number(it.unit_cost),
@@ -42,7 +45,7 @@ export default function EditOrderModal({ order, articles, onClose, onSaved }) {
       const found = prev.find(x => x.article_id === a.id)
       if (found) return prev.map(x => x.article_id === a.id ? { ...x, qty: x.qty + 1 } : x)
       return [...prev, {
-        key: `new-${tempKey++}`, article_id: a.id, name: a.name, qty: 1,
+        key: `new-${tempKey++}`, article_id: a.id, name: a.name, image_url: a.image_url ?? null, qty: 1,
         unit_price: Number(a[priceField]), unit_cost: Number(a.cost || 0),
       }]
     })
@@ -117,17 +120,7 @@ export default function EditOrderModal({ order, articles, onClose, onSaved }) {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {CHANNELS.map(c => (
-              <button key={c.id} onClick={() => switchChannel(c.id)}
-                className={`px-3 py-1.5 rounded-full font-bold text-xs border-2 transition ${
-                  channel === c.id ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200'
-                }`}
-                style={channel === c.id ? { backgroundColor: c.color, color: c.id === 'sitio' ? '#151a3d' : 'white' } : {}}>
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <ChannelTabs value={channel} onChange={switchChannel} />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
@@ -135,9 +128,12 @@ export default function EditOrderModal({ order, articles, onClose, onSaved }) {
               <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                 {available.map(a => (
                   <button key={a.id} onClick={() => addArticle(a)}
-                    className="border border-gray-200 rounded-lg p-2.5 text-left hover:ring-2 hover:ring-mv-blue transition">
-                    <div className="font-semibold text-mv-navy text-xs leading-tight">{a.name}</div>
-                    <div className="text-mv-blue font-bold text-xs">{money(a[priceField])}</div>
+                    className="border border-gray-200 rounded-lg overflow-hidden text-left hover:ring-2 hover:ring-mv-blue transition">
+                    <ArticleImage src={a.image_url} alt="" className="w-full h-14" />
+                    <div className="p-2">
+                      <div className="font-semibold text-mv-navy text-xs leading-tight">{a.name}</div>
+                      <div className="text-mv-blue font-bold text-xs">{money(a[priceField])}</div>
+                    </div>
                   </button>
                 ))}
                 {available.length === 0 && <p className="text-gray-400 text-xs col-span-2">Sin artículos con precio para este canal.</p>}
@@ -149,6 +145,7 @@ export default function EditOrderModal({ order, articles, onClose, onSaved }) {
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                 {cart.map(x => (
                   <div key={x.key} className="flex items-center gap-2 text-sm">
+                    <ArticleImage src={x.image_url} alt="" className="w-7 h-7 rounded shrink-0" />
                     <div className="flex-1 font-semibold text-gray-700 leading-tight truncate">{x.name}</div>
                     <button onClick={() => setQty(x.key, x.qty - 1)} className="w-6 h-6 rounded bg-gray-100 font-bold text-xs">−</button>
                     <span className="w-5 text-center font-bold text-xs">{x.qty}</span>

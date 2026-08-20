@@ -1,5 +1,5 @@
 import { money, fmtDateTime } from '../lib/format'
-import { channelLabel } from '../lib/channels'
+import { channelLabel, channelLogo } from '../lib/channels'
 import { useSettings } from '../context/SettingsContext'
 
 const PAYMENT_LABELS = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' }
@@ -28,7 +28,12 @@ export default function Ticket({ order, onClose }) {
 
           <div className="flex justify-between"><span>Folio</span><span className="font-bold">#{String(order.folio).padStart(5, '0')}</span></div>
           <div className="flex justify-between"><span>Fecha</span><span>{fmtDateTime(order.created_at)}</span></div>
-          <div className="flex justify-between"><span>Canal</span><span className="font-bold">{channelLabel(order.channel)}</span></div>
+          <div className="flex justify-between items-center"><span>Canal</span>
+            <span className="font-bold flex items-center gap-1.5">
+              {channelLogo(order.channel) && <img src={channelLogo(order.channel)} alt="" className="w-4 h-4 rounded" />}
+              {channelLabel(order.channel)}
+            </span>
+          </div>
           {order.payment_method && (
             <div className="flex justify-between"><span>Pago</span><span>{PAYMENT_LABELS[order.payment_method] ?? order.payment_method}</span></div>
           )}

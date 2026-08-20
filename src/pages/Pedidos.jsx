@@ -5,6 +5,9 @@ import { CHANNELS, channelLabel, channelColor, channelCommission } from '../lib/
 import { useSettings } from '../context/SettingsContext'
 import Ticket from '../components/Ticket'
 import EditOrderModal from '../components/EditOrderModal'
+import ChannelTabs from '../components/ChannelTabs'
+import ChannelBadge from '../components/ChannelBadge'
+import ArticleImage from '../components/ArticleImage'
 
 export default function Pedidos({ isAdmin }) {
   const { settings } = useSettings()
@@ -104,17 +107,7 @@ export default function Pedidos({ isAdmin }) {
       {isAdmin ? (
         <>
           {/* Selector de canal */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {CHANNELS.map(c => (
-              <button key={c.id} onClick={() => { setChannel(c.id); setCart([]) }}
-                className={`px-4 py-2 rounded-full font-bold text-sm border-2 transition ${
-                  channel === c.id ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200'
-                }`}
-                style={channel === c.id ? { backgroundColor: c.color, color: c.id === 'sitio' ? '#151a3d' : 'white' } : {}}>
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <ChannelTabs value={channel} onChange={c => { setChannel(c); setCart([]) }} className="mb-6" />
 
           <div className="grid lg:grid-cols-3 gap-6 mb-10">
             {/* Artículos disponibles */}
@@ -127,10 +120,13 @@ export default function Pedidos({ isAdmin }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {available.map(a => (
                     <button key={a.id} onClick={() => add(a)}
-                      className="card p-4 text-left hover:ring-2 hover:ring-mv-blue transition active:scale-95">
-                      <div className="font-bold text-mv-navy text-sm leading-tight">{a.name}</div>
-                      {a.category && <div className="text-[11px] text-gray-400">{a.category}</div>}
-                      <div className="text-mv-blue font-black mt-1">{money(a[priceField])}</div>
+                      className="card overflow-hidden text-left hover:ring-2 hover:ring-mv-blue transition active:scale-95">
+                      <ArticleImage src={a.image_url} alt={a.name} className="w-full h-24" />
+                      <div className="p-3">
+                        <div className="font-bold text-mv-navy text-sm leading-tight">{a.name}</div>
+                        {a.category && <div className="text-[11px] text-gray-400">{a.category}</div>}
+                        <div className="text-mv-blue font-black mt-1">{money(a[priceField])}</div>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -148,6 +144,7 @@ export default function Pedidos({ isAdmin }) {
                 <div className="space-y-2 mb-3">
                   {cart.map(x => (
                     <div key={x.article.id} className="flex items-center gap-2 text-sm">
+                      <ArticleImage src={x.article.image_url} alt="" className="w-8 h-8 rounded-lg shrink-0" />
                       <div className="flex-1 font-semibold text-gray-700 leading-tight">{x.article.name}</div>
                       <button onClick={() => setQty(x.article.id, x.qty - 1)} className="w-7 h-7 rounded bg-gray-100 font-bold">−</button>
                       <span className="w-6 text-center font-bold">{x.qty}</span>
@@ -227,10 +224,7 @@ export default function Pedidos({ isAdmin }) {
           <div key={o.id} className="card w-full px-4 py-3 flex items-center gap-3 flex-wrap">
             <button onClick={() => setTicketOrder(o)} className="flex items-center gap-3 flex-wrap flex-1 text-left min-w-0">
               <span className="text-xs font-mono text-gray-400 w-14 shrink-0">#{String(o.folio).padStart(5, '0')}</span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold text-white shrink-0"
-                style={{ backgroundColor: channelColor(o.channel), color: o.channel === 'sitio' ? '#151a3d' : 'white' }}>
-                {channelLabel(o.channel)}
-              </span>
+              <ChannelBadge id={o.channel} />
               <span className="text-xs text-gray-400 shrink-0">{fmtDateTime(o.created_at)}</span>
               <span className="flex-1 text-sm text-gray-600 truncate min-w-[80px]">
                 {(o.order_items ?? []).map(i => `${i.qty}× ${i.article_name}`).join(', ')}

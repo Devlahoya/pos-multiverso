@@ -4,8 +4,10 @@ import { money } from '../lib/format'
 import { CHANNELS, channelCommission } from '../lib/channels'
 import { useSettings } from '../context/SettingsContext'
 import { useCategories } from '../context/CategoriesContext'
+import { uploadArticleImage } from '../lib/uploadImage'
+import ArticleImage from '../components/ArticleImage'
 
-const empty = { name: '', category: '', cost: '', price_sitio: '', price_uber: '', price_didi: '', price_rappi: '', active: true }
+const empty = { name: '', category: '', image_url: null, cost: '', price_sitio: '', price_uber: '', price_didi: '', price_rappi: '', active: true }
 
 export default function Articulos({ isAdmin }) {
   const { settings } = useSettings()
@@ -14,6 +16,7 @@ export default function Articulos({ isAdmin }) {
   const [form, setForm] = useState(empty)
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -24,12 +27,27 @@ export default function Articulos({ isAdmin }) {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
+  async function handleImageChange(e) {
+    const file = e.target.files[0]
+    e.target.value = ''
+    if (!file) return
+    setUploading(true)
+    try {
+      const url = await uploadArticleImage(file)
+      set('image_url', url)
+    } catch (err) {
+      alert('Error al subir imagen: ' + err.message)
+    }
+    setUploading(false)
+  }
+
   async function save(e) {
     e.preventDefault()
     setSaving(true)
     const payload = {
       name: form.name.trim(),
       category: form.category.trim() || null,
+      image_url: form.image_url || null,
       cost: Number(form.cost) || 0,
       price_sitio: form.price_sitio === '' ? null : Number(form.price_sitio),
       price_uber: form.price_uber === '' ? null : Number(form.price_uber),
@@ -49,7 +67,7 @@ export default function Articulos({ isAdmin }) {
   function edit(a) {
     setEditingId(a.id)
     setForm({
-      name: a.name, category: a.category ?? '', cost: a.cost ?? '',
+      name: a.name, category: a.category ?? '', image_url: a.image_url ?? null, cost: a.cost ?? '',
       price_sitio: a.price_sitio ?? '', price_uber: a.price_uber ?? '',
       price_didi: a.price_didi ?? '', price_rappi: a.price_rappi ?? '',
       active: a.active,
@@ -79,14 +97,32 @@ export default function Articulos({ isAdmin }) {
       {isAdmin && (
         <form onSubmit={save} className="card p-5 mb-8">
           <h2 className="font-bold text-mv-navy mb-4">{editingId ? 'Editar artículo' : 'Nuevo artículo'}</h2>
-          <div className="grid sm:grid-cols-3 gap-3 mb-3">
-            <input value={form.name} onChange={e => set('name', e.target.value)} required placeholder="Nombre (ej. Boneless 500g)"
-              className="border border-gray-300 rounded-lg px-3 py-2 sm:col-span-2" />
-            <input value={form.category} onChange={e => set('category', e.target.value)} placeholder="Categoría (ej. Boneless, Bebidas)"
-              list="categorias-list" className="border border-gray-300 rounded-lg px-3 py-2" />
-            <datalist id="categorias-list">
-              {categories.map(c => <option key={c.id} value={c.name} />)}
-            </datalist>
+          <div className="flex gap-4 mb-3">
+            <div className="relative shrink-0">
+              <ArticleImage src={form.image_url} alt="" className="w-20 h-20 rounded-xl" />
+              {uploading && (
+                <div className="absolute inset-0 rounded-xl bg-black/40 flex items-center justify-center text-white text-xs">…</div>
+              )}
+              {form.image_url && !uploading && (
+                <button type="button" onClick={() => set('image_url', null)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-mv-red text-white text-xs font-bold leading-none">×</button>
+              )}
+            </div>
+            <div className="flex-1">
+              <label className="inline-block cursor-pointer text-xs font-bold text-mv-blue hover:underline mb-1">
+                {form.image_url ? 'Cambiar foto' : 'Subir foto'}
+                <input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} className="hidden" />
+              </label>
+              <div className="grid sm:grid-cols-3 gap-3">
+                <input value={form.name} onChange={e => set('name', e.target.value)} required placeholder="Nombre (ej. Boneless 500g)"
+                  className="border border-gray-300 rounded-lg px-3 py-2 sm:col-span-2" />
+                <input value={form.category} onChange={e => set('category', e.target.value)} placeholder="Categoría (ej. Boneless, Bebidas)"
+                  list="categorias-list" className="border border-gray-300 rounded-lg px-3 py-2" />
+                <datalist id="categorias-list">
+                  {categories.map(c => <option key={c.id} value={c.name} />)}
+                </datalist>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-3">
             <label className="text-xs font-semibold text-gray-500">
@@ -129,6 +165,7 @@ export default function Articulos({ isAdmin }) {
         <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr className="text-left text-xs text-gray-500 uppercase border-b">
+              <th className="px-4 py-3"></th>
               <th className="px-4 py-3">Artículo</th>
               <th className="px-4 py-3">Costo</th>
               {CHANNELS.map(c => <th key={c.id} className="px-4 py-3">{c.label}</th>)}
@@ -138,6 +175,9 @@ export default function Articulos({ isAdmin }) {
           <tbody>
             {items.map(a => (
               <tr key={a.id} className={`border-b last:border-0 ${!a.active ? 'opacity-40' : ''}`}>
+                <td className="px-4 py-3">
+                  <ArticleImage src={a.image_url} alt={a.name} className="w-10 h-10 rounded-lg" />
+                </td>
                 <td className="px-4 py-3">
                   <div className="font-bold text-mv-navy">{a.name}</div>
                   {a.category && <div className="text-xs text-gray-400">{a.category}</div>}
@@ -169,7 +209,7 @@ export default function Articulos({ isAdmin }) {
               </tr>
             ))}
             {items.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Sin artículos todavía.</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Sin artículos todavía.</td></tr>
             )}
           </tbody>
         </table>

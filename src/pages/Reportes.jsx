@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import { money, isoDay, addDays, dayStartISO, dayEndISO, fmtDate } from '../lib/format'
-import { CHANNELS, channelLabel } from '../lib/channels'
+import { CHANNELS, channelLabel, channelLogo } from '../lib/channels'
 
 export default function Reportes() {
   const hoy = isoDay()
@@ -48,7 +48,7 @@ export default function Reportes() {
       const v = chOrders.reduce((s, o) => s + Number(o.total), 0)
       const com = chOrders.reduce((s, o) => s + Number(o.total) * Number(o.commission_rate || 0), 0)
       const cst = chOrders.reduce((s, o) => s + Number(o.cost_total), 0)
-      return { canal: c.label, pedidos: chOrders.length, ventas: v, comision: com, costo: cst, utilidad: v - com - cst }
+      return { canal: c.label, canalId: c.id, pedidos: chOrders.length, ventas: v, comision: com, costo: cst, utilidad: v - com - cst }
     })
 
     // Por artículo (con canal, aplicando comisión de la orden a la que pertenece)
@@ -153,7 +153,12 @@ export default function Reportes() {
               <tbody>
                 {data.porCanal.map(c => (
                   <tr key={c.canal} className="border-b last:border-0">
-                    <td className="px-4 py-3 font-bold text-mv-navy">{c.canal}</td>
+                    <td className="px-4 py-3 font-bold text-mv-navy">
+                      <span className="flex items-center gap-1.5">
+                        {channelLogo(c.canalId) && <img src={channelLogo(c.canalId)} alt="" className="w-4 h-4 rounded" />}
+                        {c.canal}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-right">{c.pedidos}</td>
                     <td className="px-4 py-3 text-right">{money(c.ventas)}</td>
                     <td className="px-4 py-3 text-right text-orange-500">{c.comision > 0 ? `−${money(c.comision)}` : '—'}</td>
